@@ -1,4 +1,7 @@
-use std::{collections::HashMap, fmt::{Debug, Formatter, Result}};
+use std::{
+    collections::HashMap,
+    fmt::{Debug, Formatter, Result},
+};
 
 //// Standard keywords:
 /// Not in use:
@@ -44,12 +47,11 @@ use std::{collections::HashMap, fmt::{Debug, Formatter, Result}};
 // static, transitive
 /// Others:
 // to, with
-
 pub mod number;
 
 pub struct Token {
-    pub name:     String,
-    pub len:      usize,
+    pub name: String,
+    pub len: usize,
     pub metadata: HashMap<String, i32>,
 }
 
@@ -64,12 +66,40 @@ impl Debug for Token {
 }
 
 impl Token {
-    pub fn new(name: String, len: usize) -> Self {
-        Self { name, len, metadata: HashMap::new() }
+    pub fn new(name: &str, len: usize) -> Self {
+        Self::with_meta(name, len, HashMap::new())
     }
 
-    pub fn with_meta(name: String, len: usize, metadata: HashMap<String, i32>) -> Self {
-        Self { name, len, metadata }
+    pub fn whitespace(len: usize) -> Self {
+        Self::new("whitespace", len)
+    }
+
+    pub fn number_dot() -> Self {
+        Self::new("number.dot", 1)
+    }
+
+    pub fn number_sign() -> Self {
+        Self::new("number.sign", 1)
+    }
+
+    pub fn number_suffix() -> Self {
+        Self::new("number.suffix", 1)
+    }
+
+    pub fn number_e() -> Self {
+        Self::new("number.e", 1)
+    }
+
+    pub fn number_e_sign() -> Self {
+        Self::new("number.e.sign", 1)
+    }
+
+    pub fn with_meta(name: &str, len: usize, metadata: HashMap<String, i32>) -> Self {
+        Self {
+            name: String::from(name),
+            len,
+            metadata,
+        }
     }
 
     pub fn add_metadata(&mut self, addition: HashMap<String, i32>) -> &Self {
@@ -80,9 +110,7 @@ impl Token {
 
 impl PartialEq for Token {
     fn eq(&self, other: &Self) -> bool {
-        self.name.eq(&other.name) &&
-        self.len == other.len &&
-        self.metadata.eq(&other.metadata)
+        self.name.eq(&other.name) && self.len == other.len && self.metadata.eq(&other.metadata)
     }
 }
 
@@ -104,6 +132,7 @@ impl PartialEq for Token {
 //    }
 //}
 
+#[derive(Copy, Clone)]
 pub struct ParserContext {
     //modifiers: Modifiers,
 }
@@ -114,14 +143,6 @@ impl ParserContext {
     }
 }
 
-impl Copy for ParserContext {}
-
-impl Clone for ParserContext {
-    fn clone(&self) -> Self {
-        *self
-    }
-}
-
 pub trait Parser {
-    fn parse(&self, code: &String, context: ParserContext) -> Option<Vec<Token>>;
+    fn parse(&self, code: &str, context: ParserContext) -> Option<Vec<Token>>;
 }
